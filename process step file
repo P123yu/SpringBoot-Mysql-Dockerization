@@ -1,0 +1,34 @@
+./mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=piyush12singh/spring-mysql-docker-image:01"
+// create network 
+docker network create spring-mysql-net
+// for connecting mysql image to network 
+docker run -d --name mysqldb --network spring-mysql-net -e MYSQL_USERNAME=root -e MYSQL_ROOT_PASSWORD=root -e  MYSQL_DATABASE=docker-mysql  mysql
+// for connecting spring image to network
+docker run --name crudmain-spring -p 9002:8080 --network  spring-mysql-net -e spring.datasource.url=jdbc:mysql://mysqldb:3306/docker-mysql -e spring.datasource.username=root -e spring.datasource.password=root -e spring.jpa.show-sql=true -e spring.jpa.generate-ddl=true -e spring.jpa.hibernate.ddl-auto=update  piyush12singh/spring-mysql-docker-image:01
+
+// below command is not sufficient because mysql requires environment in spring image also which is different from postgres or mongodb
+docker run  --name mysql_spring --network spring-mysql-net -p 9002:8080 piyush
+12singh/spring-mysql-docker-image:01
+
+
+// application.properties
+
+spring.application.name=spring-mysql-doc
+#spring.datasource.url=jdbc:mysql://localhost:3306/docker-mysql
+spring.datasource.url=jdbc:mysql://mysqldb:3306/docker-mysql
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.show-sql=true
+spring.jpa.generate-ddl=true
+spring.jpa.hibernate.ddl-auto=update
+
+
+// for going inside container
+
+Docker exec  -it mysqldb (container name) bash
+	mysql  -u root –p  (press enter)
+	root (password)
+	show databases;
+	show tables;
+	select * from table_name;
